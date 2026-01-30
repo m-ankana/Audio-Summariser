@@ -1,0 +1,7 @@
+openai-whisper
+transformers
+pytest
+fastapi
+uvicorn[standard]
+python-multipart
+jinja2
