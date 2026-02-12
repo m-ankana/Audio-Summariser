@@ -85,19 +85,6 @@ Visit:
 
 ---
 
-## 🌐 Deployment
-
-The application is deployed on **Render**.
-
-* Render installs dependencies from `requirements.txt`
-* The app is started using:
-
-  ```bash
-  uvicorn app:app --host 0.0.0.0 --port $PORT
-  ```
-* Uploaded files are stored temporarily (ephemeral filesystem)
-
----
 
 ## ⚠️ Notes & Limitations
 
@@ -124,7 +111,6 @@ This project was built to understand:
 * End-to-end ML system integration
 * Backend engineering best practices
 * FastAPI-based UI workflows
-* Cloud deployment without Docker
 
 ---
 
