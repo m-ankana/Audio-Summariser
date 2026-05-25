@@ -1,9 +1,4 @@
 
-Create: 
-.concurrency: .github/workflows/aws.yml
-
-Add:
-
 name: Deploy to AWS
 
 on:
