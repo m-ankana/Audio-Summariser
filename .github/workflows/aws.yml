@@ -1,4 +1,3 @@
-
 name: Deploy to AWS
 
 on:
@@ -12,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -23,31 +22,39 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
+      - name: Build and Push Docker image
         run: |
           docker build -t audio-summariser .
-          docker tag audio-summariser:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
-
-      - name: Push Docker image
-        run: |
+          
+          docker tag audio-summariser:latest \
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+          
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
       - name: Deploy on EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+            # Use the registry from GitHub (passed via env)
+            REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+            REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
+            
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin $REGISTRY
+            
+            docker pull $REGISTRY/$REPOSITORY:latest
+            
             docker stop audio-summariser || true
             docker rm audio-summariser || true
+            
             docker run -d \
               --name audio-summariser \
               -p 8000:8000 \
               -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
               -e ASSEMBLYAI_API_KEY=${{ secrets.ASSEMBLYAI_API_KEY }} \
-              ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+              $REGISTRY/$REPOSITORY:latest
