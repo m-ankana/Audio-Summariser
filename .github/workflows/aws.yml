@@ -1,6 +1,6 @@
 
 Create: 
-.concurrency: .github/workflows/deploy.yml
+.concurrency: .github/workflows/aws.yml
 
 Add:
 
