@@ -1,3 +1,4 @@
+
 # import ollama
 
 # from logger import logger
@@ -54,9 +55,5 @@ def summarize_text(text):
         )
 
         summary = response.choices[0].message.content
-
-    except Exception:
-        logger.exception("Failed to start summarization")
-        raise Exception("Failed to start summarization")
 
     return summary

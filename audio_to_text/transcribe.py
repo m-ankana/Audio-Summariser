@@ -7,6 +7,7 @@ def transcribe_audio(audio_path):
     """Transcribes audio using the Whisper model."""
     try:
         model = whisper.load_model("base")
+
     except Exception:
         logger.exception("Failed to load Whisper model")
         raise Exception("Failed to load Whisper model")
